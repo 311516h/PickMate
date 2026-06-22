@@ -12,6 +12,10 @@ function ResultView({ result, onRestart }) {
     );
   }
 
+  const finalMessage =
+    result.finalMessage ||
+    `지금 조건에서는 ${result.recommendedOption} 쪽이 더 적합해 보여요.`;
+
   return (
     <div className="screen result-screen">
       <header className="result-header">
@@ -46,7 +50,7 @@ function ResultView({ result, onRestart }) {
 
       <section className="final-message" aria-label="AI 코멘트">
         <span className="final-message-badge">AI 코멘트</span>
-        <p>{result.finalMessage}</p>
+        <p>{finalMessage}</p>
       </section>
 
       <div className="bottom-action">

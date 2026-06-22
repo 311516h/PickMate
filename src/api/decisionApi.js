@@ -1,25 +1,63 @@
-export function analyzeDecision(form) {
-  const optionA = form.optionA.trim() || "A 선택지";
-  const optionB = form.optionB.trim() || "B 선택지";
-  const criteria = form.criteria.trim() || "중요한 기준";
-  const context = form.context.trim() || "현재 상황";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+const REQUEST_TIMEOUT = 30000;
 
-  return new Promise((resolve) => {
-    window.setTimeout(() => {
-      resolve({
-        recommendedOption: optionA,
-        summary: `${criteria}을 기준으로 보면 지금은 ${optionA} 쪽이 조금 더 적합해 보여요.`,
-        reasons: [
-          `${criteria}을 중요하게 보고 있어서 선택 기준과 ${optionA}의 방향이 더 잘 맞습니다.`,
-          `${context}을 고려하면 바로 큰 변화를 만들기보다 실행 가능한 선택부터 시작하는 편이 좋습니다.`,
-          `${optionB}도 장점은 있지만, 현재 입력한 조건에서는 우선순위가 조금 덜 맞아 보입니다.`
-        ],
-        alternativeAdvice: [
-          `${optionB}가 비용, 안정성, 시간 부담 면에서 확실히 유리하다면 ${optionB}를 다시 검토해볼 만합니다.`,
-          `아직 정보가 부족하다면 1주일 정도 더 비교해보고 결정하는 것도 좋은 대안입니다.`
-        ],
-        finalMessage: `지금 조건에서는 ${optionA}를 추천해요. 다만 바로 확정하기보다 작은 준비부터 시작해보세요.`
-      });
-    }, 1200);
-  });
+export async function analyzeDecision(form) {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/decisions/analyze`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(form),
+      signal: controller.signal
+    });
+
+    const data = await parseResponse(response);
+
+    if (!response.ok) {
+      throw new Error(data.message || "선택 분석 요청에 실패했습니다.");
+    }
+
+    if (
+      typeof data.recommendedOption !== "string" ||
+      typeof data.summary !== "string" ||
+      !Array.isArray(data.reasons) ||
+      !Array.isArray(data.alternativeAdvice)
+    ) {
+      throw new Error("분석 결과 형식이 올바르지 않아요. 다시 시도해주세요.");
+    }
+
+    const finalMessage =
+      typeof data.finalMessage === "string" && data.finalMessage.trim()
+        ? data.finalMessage.trim()
+        : `지금 조건에서는 ${data.recommendedOption} 쪽이 더 적합해 보여요.`;
+
+    return {
+      ...data,
+      finalMessage
+    };
+  } catch (error) {
+    if (error.name === "AbortError") {
+      throw new Error("분석 시간이 오래 걸리고 있어요. 잠시 후 다시 시도해주세요.");
+    }
+
+    if (error instanceof TypeError) {
+      throw new Error("서버에 연결할 수 없어요. 백엔드 서버가 실행 중인지 확인해주세요.");
+    }
+
+    throw error;
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+}
+
+async function parseResponse(response) {
+  try {
+    return await response.json();
+  } catch {
+    return {};
+  }
 }
