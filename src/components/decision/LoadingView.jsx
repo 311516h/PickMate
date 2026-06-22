@@ -2,7 +2,7 @@ import React from "react";
 
 function LoadingView() {
   return (
-    <div className="screen loading-screen" aria-live="polite">
+    <div className="screen loading-screen" aria-live="polite" aria-busy="true">
       <div className="loader" aria-hidden="true">
         <span />
         <span />

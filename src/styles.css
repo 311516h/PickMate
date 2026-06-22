@@ -73,8 +73,7 @@ textarea {
 
 .phone-frame {
   width: min(100%, 390px);
-  min-height: min(844px, calc(100vh - 48px));
-  max-height: 844px;
+  height: min(844px, calc(100dvh - 48px));
   overflow: hidden;
   position: relative;
   border: 1px solid rgba(24, 33, 47, 0.08);
@@ -84,8 +83,8 @@ textarea {
 }
 
 .screen {
-  min-height: min(844px, calc(100vh - 48px));
   height: 100%;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -346,10 +345,68 @@ h2 {
   pointer-events: none;
 }
 
+.button-outline {
+  color: var(--primary);
+  border: 1px solid var(--border);
+  background: #ffffff;
+}
+
+.button-outline:hover:not(:disabled) {
+  border-color: var(--secondary);
+  background: var(--surface-subtle);
+  box-shadow: 0 10px 22px rgba(91, 75, 255, 0.1);
+}
+
 .loading-screen {
   justify-content: center;
   align-items: center;
   text-align: center;
+}
+
+.error-screen {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.error-mark {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 20px;
+  color: var(--primary);
+  background: var(--surface-soft);
+  box-shadow: 0 16px 32px rgba(91, 75, 255, 0.12);
+  font-size: 30px;
+  font-weight: 900;
+}
+
+.error-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.error-copy h1 {
+  font-size: 25px;
+}
+
+.error-copy > p:last-child {
+  max-width: 300px;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.error-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
 }
 
 .loader {
@@ -391,14 +448,18 @@ h2 {
 
 .result-screen {
   overflow-y: auto;
-  min-height: 100%;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+.result-screen > * {
+  flex-shrink: 0;
 }
 
 .result-screen .bottom-action {
   margin-top: auto;
   padding-top: 0;
-  flex-shrink: 0;
 }
 
 .result-header {
@@ -518,15 +579,21 @@ ul {
 
   .phone-frame {
     width: 100%;
-    min-height: 100vh;
-    max-height: none;
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
     border: 0;
     border-radius: 0;
     box-shadow: none;
   }
 
   .screen {
-    min-height: 100vh;
+    height: auto;
+    min-height: 100dvh;
     padding: 24px 20px;
+  }
+
+  .result-screen {
+    overflow-y: visible;
   }
 }

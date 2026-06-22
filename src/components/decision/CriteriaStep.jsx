@@ -1,21 +1,13 @@
 import React from "react";
 
-import { analyzeDecision } from "../../api/decisionApi";
 import Button from "../common/Button";
 import StepHeader from "../common/StepHeader";
 import TextArea from "../common/TextArea";
 import { useDecisionForm } from "../../hooks/useDecisionForm";
 
-function CriteriaStep({ form, setForm, setResult, onLoading, onResult, onBack }) {
+function CriteriaStep({ form, setForm, onAnalyze, onBack }) {
   const { updateField } = useDecisionForm(form, setForm);
   const disabled = !form.criteria.trim() || !form.context.trim();
-
-  const handleAnalyze = async () => {
-    onLoading();
-    const analyzedResult = await analyzeDecision(form);
-    setResult(analyzedResult);
-    onResult();
-  };
 
   return (
     <div className="screen">
@@ -43,7 +35,7 @@ function CriteriaStep({ form, setForm, setResult, onLoading, onResult, onBack })
       </div>
 
       <div className="bottom-action">
-        <Button onClick={handleAnalyze} disabled={disabled}>
+        <Button onClick={onAnalyze} disabled={disabled}>
           AI에게 물어보기
         </Button>
       </div>
